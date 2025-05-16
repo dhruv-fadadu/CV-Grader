@@ -1,0 +1,657 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "CV",
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -140,
+        860
+      ],
+      "id": "edac67d9-d347-43b3-bf58-bc23f1a761a2",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Oh8AjfkPkuDtPOrd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"candidate_name\": { \"type\": \"string\" },\n    \"email\": { \"type\": \"string\", \"format\": \"email\" },\n    \"phone_number\": {\n      \"type\": \"string\",\n      \"pattern\": \"(?:\\\\+?\\\\d{1,3}[\\\\s-]?)?(?:\\\\(?\\\\d{2,4}\\\\)?[\\\\s.-]?)?\\\\d{3,4}[\\\\s.-]?\\\\d{3,4}\"\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        500
+      ],
+      "id": "ae8e1b8c-7852-4079-9000-18762948a0cc",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1268,
+        720
+      ],
+      "id": "ca9dcda4-5860-4e92-95b7-1d5db0ff492c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6Ex54jkU8tKGJUuF",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an HR Assistant. Given the following Job Scorecard and Candidate CV, evaluate how well the candidate matches the job. Provide a summary and a score out of 100.\n\n--- Job Scorecard ---\n{{ $json.Scorecard }}\n\n--- Candidate CV ---\n{{ $json.CV }}\n\nRespond with:\n- Summary (3–5 bullet points)\n- Score: XX/100"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        1180,
+        0
+      ],
+      "id": "cd02734c-cb95-4298-88f6-3edc2e353d82",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1268,
+        220
+      ],
+      "id": "42037e3c-484e-4ec5-9eec-37d06cfdb052",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6Ex54jkU8tKGJUuF",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1776,
+        300
+      ],
+      "id": "517f9db1-108d-4138-9989-100706ce55d8",
+      "name": "Merge",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1uqq8hDkg352Ska1jvgCeDQURM69AMRNTp1cH8BD8Qcs",
+          "mode": "list",
+          "cachedResultName": "CV Grader",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uqq8hDkg352Ska1jvgCeDQURM69AMRNTp1cH8BD8Qcs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uqq8hDkg352Ska1jvgCeDQURM69AMRNTp1cH8BD8Qcs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "candidate_name",
+              "displayName": "candidate_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1996,
+        300
+      ],
+      "id": "9df684d9-e9bf-4895-bd9b-65608bdce831",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L1vQP60M7jwn2VGi",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "c463ef65-0827-4aa1-9cae-93c294f96310",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        300
+      ],
+      "id": "a914ee81-bcb6-4402-99e7-e6ffc2d0151c",
+      "name": "Collect CV and Scorecard from Web App",
+      "webhookId": "c463ef65-0827-4aa1-9cae-93c294f96310"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "scorecard",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1kvv5KnGTjSXn2vXzfBrFSOAu0vHlafcd",
+          "mode": "list",
+          "cachedResultName": "Scorecards",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1kvv5KnGTjSXn2vXzfBrFSOAu0vHlafcd"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        80,
+        0
+      ],
+      "id": "0ed76527-e48a-43e1-ae7a-bc049c3d1e5c",
+      "name": "Upload Scorecard",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "d44z2SZa0dGsWDNG",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        300,
+        0
+      ],
+      "id": "4930a2c6-da8f-4cef-bc54-b367e317e05d",
+      "name": "Download Scorecard",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "d44z2SZa0dGsWDNG",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "cv",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1HeMXDOG9HE18U_XizkU5uUAnUH-PAPX_",
+          "mode": "list",
+          "cachedResultName": "CVs",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1HeMXDOG9HE18U_XizkU5uUAnUH-PAPX_"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        80,
+        425
+      ],
+      "id": "c22b2e68-3c95-400e-b0fe-146fef73444f",
+      "name": "Upload CV",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "d44z2SZa0dGsWDNG",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        300,
+        425
+      ],
+      "id": "3dab6725-f760-46ea-9635-2067818e9992",
+      "name": "Download CV",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "d44z2SZa0dGsWDNG",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ],
+      "id": "c6a94aa4-81d8-40c8-a726-34e736962cb4",
+      "name": "Extract text from Scorecard"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        520,
+        425
+      ],
+      "id": "3ff64d23-a59d-4c4f-929e-ee91110c4e41",
+      "name": "Extract text from CV"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\"CV\": $input.first().json.text}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        225
+      ],
+      "id": "8bd5dbbc-7490-4d93-96fc-b10a16fe14c6",
+      "name": "Fetch CV text"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        100
+      ],
+      "id": "3d40c0f1-81e9-4bdd-94fb-41f07140c295",
+      "name": "Merge Scorecard and CV text",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\"Scorecard\": $input.first().json.text};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        0
+      ],
+      "id": "9ae37fdb-135e-48c9-856c-0346a03685db",
+      "name": "Fetch Scorecard text"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  candidate_name: $input.first().json.output.candidate_name,\n  email: $input.first().json.output.email,\n  phone_number: $input.first().json.output.phone_number,\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1556,
+        500
+      ],
+      "id": "d448acad-ad1c-4ca2-8bb2-3f52390bf9a7",
+      "name": "Json formatted candidate info"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.text;\n\n// Extract summary (all bullet points)\nconst summaryMatch = text.match(/(?<=\\* ).*?(?=\\n\\n|\\* )/gs);\nconst summary = summaryMatch ? summaryMatch.map(s => `* ${s.trim()}`).join('\\n') : \"Summary not found\";\n\n// Extract score\nconst scoreMatch = text.match(/Score:\\s*(\\d+)\\/100/);\nconst score = scoreMatch ? parseInt(scoreMatch[1], 10) : \"Score not found\";\n\n// Return JSON object\nreturn {\n  summary: summary,\n  score: score\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1556,
+        100
+      ],
+      "id": "a990a990-0c0e-4c20-8ec8-3b96297a5ae1",
+      "name": "Fetching summary and score"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Fetching summary and score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Json formatted candidate info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect CV and Scorecard from Web App": {
+      "main": [
+        [
+          {
+            "node": "Upload Scorecard",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Scorecard": {
+      "main": [
+        [
+          {
+            "node": "Download Scorecard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Scorecard": {
+      "main": [
+        [
+          {
+            "node": "Extract text from Scorecard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload CV": {
+      "main": [
+        [
+          {
+            "node": "Download CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download CV": {
+      "main": [
+        [
+          {
+            "node": "Extract text from CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract text from Scorecard": {
+      "main": [
+        [
+          {
+            "node": "Fetch Scorecard text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract text from CV": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch CV text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CV text": {
+      "main": [
+        [
+          {
+            "node": "Merge Scorecard and CV text",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch Scorecard text": {
+      "main": [
+        [
+          {
+            "node": "Merge Scorecard and CV text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Scorecard and CV text": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Json formatted candidate info": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetching summary and score": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "704fde4e-be5c-463c-901a-d1e67c5bdb51",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "46b703759407e20bc0f9f3d6247048e1027b82720750e09bb2db718fdcf19d4a"
+  },
+  "id": "UdLQ60kkrzklxIYF",
+  "tags": []
+}
