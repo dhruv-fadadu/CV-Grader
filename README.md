@@ -5,20 +5,6 @@
 **Overview**
  - This project provides an automated, production-ready workflow designed for HR teams to efficiently evaluate candidates' CVs against job scorecards. Using AI, it analyzes and scores how well a candidate's profile matches a given role.
 
-🔧 What It Does
-The workflow takes:
-
-A Candidate's CV (PDF)
-
-A Job Scorecard (PDF)
-
-Then it:
-
-Uses an AI agent to analyze relevance and generate a summary and score.
-
-Outputs the result in a readable format for HR review.
-
-This can significantly reduce manual screening time and ensure consistent, unbiased evaluation across applications.
 
 🧰 Requirements
 
@@ -31,6 +17,7 @@ Sample files for testing:
  - Candidate CV (PDF)
 
  - Job Scorecard (PDF)
+
 
 **UI Design**:
 
